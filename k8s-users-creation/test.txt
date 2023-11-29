@@ -1,0 +1,49 @@
+
+
+user => sagar
+
+group => admin_group
+
+namespace => default
+
+
+##################################################
+
+mkdir -p  ~/.kube/users
+cd ~/.kube/users
+
+openssl genrsa -out sagar.key 2048
+
+
+openssl req -new -key sagar.key -out sagar.csr -subj "/CN=sagar/O=admin_group/O=example.org"
+
+
+file /etc/kubernetes/pki/ca.crt
+
+file /etc/kubernetes/pki/ca.key
+
+openssl x509 -req -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -days 730 -in sagar.csr -out sagar.crt
+
+
+kubectl config set-credentials sagar --client-certificate=/root/.kube/users/sagar/sagar.crt --client-key=/root/.kube/users/sagar/sagar.key
+
+
+kubectl config get-contexts
+
+
+kubectl config set-context sagar-kubernetes --cluster=kubernetes  --user=sagar --namespace=default
+
+
+kubectl config get-contexts
+
+kubectl config use-context sagar-kubernetes
+
+
+kubectl config use-context kubernetes-admin@kubernetes
+
+
+---
+
+kubectl config delete-user USER_NAME
+
+kubectl config delete-context my-context
